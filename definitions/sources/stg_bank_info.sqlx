@@ -1,0 +1,29 @@
+config {
+  type: "declaration",
+  database: "pso-hackathon",
+  schema: `${dataform.projectConfig.vars.dataset_id_landing}`, // Corrected schema variable
+  name: "bank_info_raw", // Corrected to actual table name
+  columns: { // These should match the columns in your actual bank_info_raw table
+    uuid: "STRING",
+    account_number: "STRING", // Consistent with int_premier_bank_vaporviews_clients.sqlx
+    age: "STRING",
+    Experience: "STRING",
+    Income: "STRING",
+    ZIP_Code: "STRING",
+    Family: "STRING",
+    Education: "STRING",
+    Mortgage: "STRING",
+    Personal_Loan: "STRING",
+    Securities_Account: "STRING",
+    CD_Account: "STRING",
+    Online: "STRING",
+    Credit_Card: "STRING",
+    Job: "STRING",
+    Marital: "STRING",
+    Housing: "STRING",
+    Loan: "STRING",
+    Contact: "STRING",
+    Name: "STRING",
+    Last_Name: "STRING"
+  }
+}

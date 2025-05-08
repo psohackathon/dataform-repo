@@ -1,0 +1,80 @@
+-- out_products_sold_to_matched_clients.sqlx
+
+config {
+  type: "table",
+  schema: dataform.projectConfig.vars.dataset_id_exposure, // Updated to use variable from dataform.json
+  tags: ["vaporviews_analysis"],
+  description: "Counts of different VaporViews products sold to matched Premier Bank clients."
+}
+
+-- Common Table Expression (CTE) to select only premier clients
+WITH premier_clients AS (
+  SELECT
+    uuid,
+    account_number,
+    Personal_Loan,
+    Securities_Account,
+    CD_Account,
+    Online,
+    Credit_Card
+  FROM
+    ${ref("int_premier_bank_vaporviews_clients")}
+  WHERE
+    is_premier_client IS TRUE
+),
+
+-- CTE to unpivot the product data for premier clients
+unpivoted_products AS (
+  SELECT
+    uuid,
+    account_number,
+    'Personal Loan' AS product_name,
+    Personal_Loan AS has_product
+  FROM
+    premier_clients
+  UNION ALL
+  SELECT
+    uuid,
+    account_number,
+    'Securities Account' AS product_name,
+    Securities_Account AS has_product
+  FROM
+    premier_clients
+  UNION ALL
+  SELECT
+    uuid,
+    account_number,
+    'CD Account' AS product_name,
+    CD_Account AS has_product
+  FROM
+    premier_clients
+  UNION ALL
+  SELECT
+    uuid,
+    account_number,
+    'Online Banking' AS product_name,
+    Online AS has_product
+  FROM
+    premier_clients
+  UNION ALL
+  SELECT
+    uuid,
+    account_number,
+    'Credit Card' AS product_name,
+    Credit_Card AS has_product
+  FROM
+    premier_clients
+)
+
+-- Final select statement to count distinct clients for each product
+SELECT
+  product_name,
+  COUNT(DISTINCT uuid) AS number_of_distinct_matched_clients_with_product
+FROM
+  unpivoted_products
+WHERE
+  has_product IS TRUE
+GROUP BY
+  product_name
+ORDER BY
+  product_name

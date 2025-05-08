@@ -1,0 +1,15 @@
+config {
+  type: "declaration",
+  database: "pso-hackathon",
+  schema: `${dataform.projectConfig.vars.dataset_id_landing}`, // Corrected schema variable
+  name: "raw_transactions_raw", // Corrected to actual table name
+  columns: { // These should match the columns in your actual raw_transactions_raw table
+    transaction_uuid: "STRING",
+    account_number: "INTEGER", // Consistent with int_premier_bank_vaporviews_clients.sqlx casting
+    date: "DATE",
+    withdrawal_amount: "DECIMAL", // BQ DECIMAL is NUMERIC or BIGNUMERIC
+    deposit_amount: "DECIMAL",    // BQ DECIMAL is NUMERIC or BIGNUMERIC
+    balance: "DECIMAL",           // BQ DECIMAL is NUMERIC or BIGNUMERIC
+    successful_operation: "BOOLEAN"
+  }
+}

@@ -1,0 +1,21 @@
+-- out_matched_client_profile.sqlx
+
+config {
+  type: "table",
+  schema: dataform.projectConfig.vars.dataset_id_exposure, // Updated to use variable from dataform.json
+  tags: ["vaporviews_analysis"],
+  description: "Profile of matched Premier Bank clients based on VaporViews data (avg income, mortgage, key products)."
+}
+
+SELECT
+  COUNT(DISTINCT uuid) AS number_of_matched_clients,
+  AVG(Age) AS avg_age,
+  AVG(Income) AS avg_income,
+  AVG(Mortgage) AS avg_mortgage,
+  SUM(CASE WHEN Personal_Loan IS TRUE THEN 1 ELSE 0 END) AS count_with_personal_loan,
+  SUM(CASE WHEN CD_Account IS TRUE THEN 1 ELSE 0 END) AS count_with_cd_account,
+  SUM(CASE WHEN Securities_Account IS TRUE THEN 1 ELSE 0 END) AS count_with_securities_account
+FROM
+  ${ref("int_premier_bank_vaporviews_clients")}
+WHERE
+  is_premier_client IS TRUE

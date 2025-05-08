@@ -1,0 +1,27 @@
+config {
+    type: "table",
+    schema: dataform.projectConfig.vars.dataset_id_exposure, // Using the variable from dataform.json
+    tags: ["vaporviews_analysis"],
+    description: "Calculates the percentage of VaporViews clients matched with Premier Bank clients."
+}
+
+WITH client_aggregates AS (
+    SELECT
+        COUNT(DISTINCT COALESCE(uuid, account_number)) AS total_vaporviews_clients,
+        COUNT(DISTINCT
+            CASE
+                WHEN is_premier_client IS TRUE THEN COALESCE(uuid, account_number)
+                ELSE NULL -- COUNT(DISTINCT ...) ignores NULLs, so only matched clients are counted
+            END
+        ) AS matched_premier_clients
+    FROM
+        ${ref("int_premier_bank_vaporviews_clients")}
+)
+SELECT
+    total_vaporviews_clients,
+    matched_premier_clients,
+    -- SAFE_DIVIDE handles division by zero by returning NULL.
+    -- We multiply by 100.0 to ensure floating point arithmetic for the percentage.
+    SAFE_DIVIDE(CAST(matched_premier_clients AS FLOAT64) * 100.0, CAST(total_vaporviews_clients AS FLOAT64)) AS match_percentage
+FROM
+    client_aggregates
